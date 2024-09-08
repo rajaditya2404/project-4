@@ -8,6 +8,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [filteredData, setFilteredData] = useState(null);
   const [error, setError] = useState(null);
+  const [selectedBtn, setSelectedBtn] = useState("all");
 
   useEffect(() => {
     const fetchFoodData = async () => {
@@ -38,9 +39,44 @@ const App = () => {
       setFilteredData(null);
     }
 
-    const filter = data?.filter((food) => food.name.toLowerCase().includes(searchValue.toLowerCase()));
+    const filter = data?.filter((food) =>
+      food.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
     setFilteredData(filter);
   };
+
+  const filterFood = (type) => {
+    if (type == "all") {
+      setFilteredData(data);
+      setSelectedBtn("all");
+      return;
+    }
+
+    const filter = data?.filter((food) =>
+      food.type.toLowerCase().includes(type.toLowerCase())
+    );
+    setFilteredData(filter);
+    setSelectedBtn(type);
+  };
+
+  const filterBtns = [
+    {
+      name: "All",
+      type: "all",
+    },
+    {
+      name: "Breakfast",
+      type: "breakfast",
+    },
+    {
+      name: "Lunch",
+      type: "lunch",
+    },
+    {
+      name: "Dinner",
+      type: "dinner",
+    },
+  ];
 
   if (error) return <div>{error}</div>;
 
@@ -63,10 +99,18 @@ const App = () => {
           </div>
         </TopContainer>
         <FilterContainer>
-          <Button>All</Button>
-          <Button>Breakfast</Button>
-          <Button>Lunch</Button>
-          <Button>Dinner</Button>
+          {filterBtns.map((value) => (
+            <Button
+              isSelected={selectedBtn == value.type}
+              key={value.name}
+              onClick={() => filterFood(value.type)}
+            >
+              {value.name}
+            </Button>
+          ))}
+          {/* <Button onClick={() => filterFood("breakfast")}>Breakfast</Button>
+          <Button onClick={() => filterFood("lunch")}>Lunch</Button>
+          <Button onClick={() => filterFood("dinner")}>Dinner</Button> */}
         </FilterContainer>
       </Container>
       <SearchResult data={filteredData} />
@@ -82,7 +126,7 @@ export const Container = styled.div`
 `;
 
 const TopContainer = styled.section`
-  min-height: 140px;
+  height: 140px;
   display: flex;
   justify-content: space-between;
   padding: 16px;
@@ -96,7 +140,14 @@ const TopContainer = styled.section`
       height: 40px;
       font-size: 16px;
       padding: 0 10px;
+      &::placeholder {
+        color: white;
+      }
     }
+  }
+  @media (0< width <600px) {
+    flex-direction: column;
+    height: 120px;
   }
 `;
 const FilterContainer = styled.section`
@@ -106,9 +157,14 @@ const FilterContainer = styled.section`
   gap: 12px;
 `;
 export const Button = styled.button`
-  background: #ff4343;
+  background: ${({ isSelected }) => (isSelected ? "#e71e1e" : "#ff4343")};
+  outline: 1px solid ${({ isSelected }) => (isSelected ? "white" : "#ff4343")};
   border-radius: 5px;
   padding: 6px 12px;
   color: #ffffff;
+  cursor: pointer;
+  &:hover {
+    background-color: #e71e1e;
+  }
   border: none;
 `;
